@@ -1,6 +1,8 @@
 import { Router } from "express";
 import { z } from "zod";
 import { interpretSearch } from "../llm/searchService.js";
+import { candidates } from "../data/profiles.js";
+import { filterProfiles } from "../filtering/filterProfiles.js";
 
 export const searchRouter = Router();
 
@@ -18,7 +20,8 @@ searchRouter.post("/", async (request, response) => {
 
   try {
     const interpretation = await interpretSearch(parsedRequest.data.query);
-    response.json(interpretation);
+    const matches = filterProfiles(candidates, interpretation.filters);
+    response.json({ ...interpretation, matches });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Search interpretation failed";
     response.status(502).json({ error: message });

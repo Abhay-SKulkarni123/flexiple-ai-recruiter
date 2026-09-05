@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { profileSchema } from "./profile.js";
 
 export const objectiveFiltersSchema = z.object({
   skills: z.array(z.string()).default([]),
@@ -34,3 +35,9 @@ export const searchInterpretationSchema = z.object({
 });
 
 export type SearchInterpretation = z.infer<typeof searchInterpretationSchema>;
+
+export const searchResponseSchema = searchInterpretationSchema.extend({
+  matches: z.array(profileSchema),
+});
+
+export type SearchResponse = z.infer<typeof searchResponseSchema>;
