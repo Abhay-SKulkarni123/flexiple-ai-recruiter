@@ -44,6 +44,33 @@ export const candidateScoreSchema = z.object({
 
 export type CandidateScore = z.infer<typeof candidateScoreSchema>;
 
+export const refinementChangeSchema = z.object({
+  field: z.string(),
+  before: z.unknown(),
+  after: z.unknown(),
+  reason: z.string().min(1),
+});
+
+export type RefinementChange = z.infer<typeof refinementChangeSchema>;
+
+export const refinementRequestSchema = z.object({
+  filters: objectiveFiltersSchema,
+  rubric: fitRubricSchema,
+  feedback: z.string().min(1),
+});
+
+export type RefinementRequest = z.infer<typeof refinementRequestSchema>;
+
+export const refinementResponseSchema = z.object({
+  filters: objectiveFiltersSchema,
+  rubric: fitRubricSchema,
+  changes: z.array(refinementChangeSchema),
+  matches: z.array(profileSchema),
+  rankedCandidates: z.array(candidateScoreSchema),
+});
+
+export type RefinementResponse = z.infer<typeof refinementResponseSchema>;
+
 export const searchResponseSchema = searchInterpretationSchema.extend({
   matches: z.array(profileSchema),
   rankedCandidates: z.array(candidateScoreSchema),
