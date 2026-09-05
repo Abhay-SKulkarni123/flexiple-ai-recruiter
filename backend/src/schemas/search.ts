@@ -12,6 +12,7 @@ export const objectiveFiltersSchema = z.object({
     .default(null),
   locations: z.array(z.string()).default([]),
   companyTypes: z.array(z.string()).default([]),
+  minScore: z.number().min(0).max(100).nullable().default(null),
 });
 
 export type ObjectiveFilters = z.infer<typeof objectiveFiltersSchema>;

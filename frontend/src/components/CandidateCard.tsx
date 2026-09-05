@@ -190,7 +190,7 @@ export function CandidateCard({
           )}
         </div>
 
-        {/* Right: Score - prominently displayed */}
+        {/* Right: Score */}
         <div className="flex shrink-0 flex-col items-center">
           <div className={`relative flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br ${scoreColor(score)} shadow-lg shadow-black/40`}>
             <div className="absolute inset-0.5 rounded-[14px] bg-slate-900/85 backdrop-blur-sm" />

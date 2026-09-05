@@ -25,7 +25,10 @@ refineRouter.post("/", async (request, response) => {
     );
     const matches = filterProfiles(candidates, refined.filters);
     const ranked = await scoreAndRankCandidates(matches, refined.rubric);
-    const rankedCandidates = ranked.slice(0, TOP_N);
+    const minScore = refined.filters.minScore ?? null;
+    const thresholded =
+      minScore !== null ? ranked.filter((c) => c.score >= minScore) : ranked;
+    const rankedCandidates = thresholded.slice(0, TOP_N);
     response.json({
       filters: refined.filters,
       rubric: refined.rubric,

@@ -52,10 +52,13 @@ const SessionBadge = ({
     );
   }
   if (phase.kind === "results") {
+    const matches = phase.data.matches.length;
+    const ranked = phase.data.rankedCandidates.length;
+    const matchWord = matches === 1 ? "match" : "matches";
     return (
       <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-300">
         <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-        {phase.data.rankedCandidates.length} ranked
+        {matches} {matchWord} · {ranked} ranked
       </span>
     );
   }
@@ -184,9 +187,8 @@ export default function App() {
             <SessionBadge phase={phase} frozen={frozen} />
             {phase.kind === "results" && (
               <button
-                className="rounded-xl border border-slate-700/60 bg-slate-800/50 px-4 py-2 text-xs font-semibold text-slate-300 shadow transition-all hover:border-indigo-500/50 hover:bg-slate-800 hover:text-indigo-300 disabled:opacity-50"
+                className="rounded-xl border border-slate-700/60 bg-slate-800/50 px-4 py-2 text-xs font-semibold text-slate-300 shadow transition-all hover:border-indigo-500/50 hover:bg-slate-800 hover:text-indigo-300"
                 onClick={startNew}
-                disabled={frozen}
               >
                 New Search
               </button>
@@ -275,7 +277,8 @@ export default function App() {
 
               {/* Candidates */}
               <CandidateList
-                candidates={phase.data.rankedCandidates}
+                matches={phase.data.matches}
+                rankedCandidates={phase.data.rankedCandidates}
                 feedback={feedback}
                 onFeedback={recordFeedback}
                 disabled={frozen}

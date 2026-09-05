@@ -123,6 +123,19 @@ export function FiltersPanel({ filters, disabled }: FiltersPanelProps) {
             </ul>
           )}
         </div>
+
+        {/* Score Threshold */}
+        {filters.minScore !== null && (
+          <div>
+            <SectionLabel>Score Threshold</SectionLabel>
+            <div className="inline-flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-sm font-semibold text-amber-300">
+              <svg className="h-4 w-4 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 4h18M5 4l1 16h12l1-16M9 9h6m-6 4h6" />
+              </svg>
+              Score ≥ {filters.minScore}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

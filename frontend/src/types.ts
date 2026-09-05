@@ -3,6 +3,7 @@ export type ObjectiveFilters = {
   experience: { min: number | null; max: number | null } | null;
   locations: string[];
   companyTypes: string[];
+  minScore: number | null;
 };
 
 export type FitCriterion = {

@@ -1,38 +1,48 @@
-import type { CandidateScore, Feedback } from "../types";
+import type { CandidateScore, CandidateProfile, Feedback } from "../types";
 import { CandidateCard } from "./CandidateCard";
+import { MatchedProfileCard } from "./MatchedProfileCard";
 
 type CandidateListProps = {
-  candidates: CandidateScore[];
+  matches: CandidateProfile[];
+  rankedCandidates: CandidateScore[];
   feedback: Record<string, Feedback>;
   onFeedback?: (id: string, fb: Feedback) => void;
   disabled?: boolean;
 };
 
 export function CandidateList({
-  candidates,
+  matches,
+  rankedCandidates,
   feedback,
   onFeedback,
   disabled,
 }: CandidateListProps) {
-  return (
-    <section>
-      <div className="mb-5 flex items-center justify-between">
-        <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-indigo-400">
-            Ranked results
-          </p>
-          <h3 className="mt-1 text-xl font-bold text-slate-50">
-            Top Candidates
-          </h3>
-        </div>
-        {candidates.length > 0 && (
-          <span className="rounded-full border border-slate-700/60 bg-slate-800/50 px-3 py-1 text-xs font-medium text-slate-400">
-            {candidates.length} {candidates.length === 1 ? "candidate" : "candidates"}
-          </span>
-        )}
-      </div>
+  const rankedIds = new Set(rankedCandidates.map((c) => c.profile.id));
 
-      {candidates.length === 0 ? (
+  const ranked = matches
+    .filter((p) => rankedIds.has(p.id))
+    .map((p) => {
+      const score = rankedCandidates.find((c) => c.profile.id === p.id)!;
+      return { profile: p, score, rank: rankedCandidates.indexOf(score) + 1 };
+    });
+
+  const unranked = matches
+    .filter((p) => !rankedIds.has(p.id))
+    .map((p, i) => ({ profile: p, rank: ranked.length + i + 1 }));
+
+  const matchWord = matches.length === 1 ? "match" : "matches";
+
+  if (matches.length === 0) {
+    return (
+      <section>
+        <div className="mb-5 flex items-center justify-between">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-indigo-400">
+              Ranked results
+            </p>
+            <h3 className="mt-1 text-xl font-bold text-slate-50">Candidates</h3>
+          </div>
+        </div>
         <div className="relative overflow-hidden rounded-2xl border border-slate-800/80 bg-slate-900/50 p-16 text-center backdrop-blur-sm">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-800/80">
             <svg
@@ -49,23 +59,82 @@ export function CandidateList({
               />
             </svg>
           </div>
-          <p className="text-base font-semibold text-slate-400">No candidates match your filters</p>
+          <p className="text-base font-semibold text-slate-400">
+            No candidates match your filters
+          </p>
           <p className="mt-2 max-w-sm mx-auto text-sm text-slate-600">
             Try broadening your filters or adjusting the rubric to see more results.
           </p>
         </div>
-      ) : (
-        <div className="space-y-3">
-          {candidates.map((c, i) => (
-            <CandidateCard
-              key={c.profile.id}
-              candidate={c}
-              rank={i + 1}
-              feedback={feedback[c.profile.id]}
-              onFeedback={onFeedback}
-              disabled={disabled}
-            />
-          ))}
+      </section>
+    );
+  }
+
+  return (
+    <section>
+      <div className="mb-5 flex items-center justify-between">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-indigo-400">
+            All matches
+          </p>
+          <h3 className="mt-1 text-xl font-bold text-slate-50">
+            {matches.length} {matchWord}
+          </h3>
+        </div>
+        {unranked.length > 0 && (
+          <span className="rounded-full border border-slate-700/60 bg-slate-800/50 px-3 py-1 text-xs font-medium text-slate-400">
+            {ranked.length} ranked · {unranked.length} unscored
+          </span>
+        )}
+      </div>
+
+      {/* Ranked section */}
+      {ranked.length > 0 && (
+        <div className="mb-3">
+          <div className="mb-2 flex items-center gap-2">
+            <div className="h-px flex-1 bg-gradient-to-r from-indigo-500/60 to-transparent" />
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-indigo-400">
+              Top Ranked
+            </p>
+            <div className="h-px flex-1 bg-gradient-to-l from-indigo-500/60 to-transparent" />
+          </div>
+          <div className="space-y-3">
+            {ranked.map(({ profile, score, rank }) => (
+              <CandidateCard
+                key={profile.id}
+                candidate={score}
+                rank={rank}
+                feedback={feedback[profile.id]}
+                onFeedback={onFeedback}
+                disabled={disabled}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Unranked section */}
+      {unranked.length > 0 && (
+        <div>
+          <div className="mb-2 flex items-center gap-2">
+            <div className="h-px flex-1 bg-gradient-to-r from-slate-700/60 to-transparent" />
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-500">
+              Other Matches
+            </p>
+            <div className="h-px flex-1 bg-gradient-to-l from-slate-700/60 to-transparent" />
+          </div>
+          <div className="space-y-3">
+            {unranked.map(({ profile, rank }) => (
+              <MatchedProfileCard
+                key={profile.id}
+                profile={profile}
+                rank={rank}
+                feedback={feedback[profile.id]}
+                onFeedback={onFeedback}
+                disabled={disabled}
+              />
+            ))}
+          </div>
         </div>
       )}
     </section>

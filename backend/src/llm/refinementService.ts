@@ -43,8 +43,10 @@ export async function refineSearch(
 
   const obj = parsed as { filters?: unknown; rubric?: unknown; changes?: unknown };
 
+  const parsedFilters = objectiveFiltersSchema.parse(obj.filters);
+
   return {
-    filters: objectiveFiltersSchema.parse(obj.filters),
+    filters: parsedFilters,
     rubric: fitRubricSchema.parse(obj.rubric),
     changes: Array.isArray(obj.changes)
       ? obj.changes.map((c) => refinementChangeSchema.parse(c))
