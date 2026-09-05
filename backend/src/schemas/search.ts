@@ -36,8 +36,17 @@ export const searchInterpretationSchema = z.object({
 
 export type SearchInterpretation = z.infer<typeof searchInterpretationSchema>;
 
+export const candidateScoreSchema = z.object({
+  profile: profileSchema,
+  score: z.number().min(0).max(100),
+  explanation: z.string().min(1),
+});
+
+export type CandidateScore = z.infer<typeof candidateScoreSchema>;
+
 export const searchResponseSchema = searchInterpretationSchema.extend({
   matches: z.array(profileSchema),
+  rankedCandidates: z.array(candidateScoreSchema),
 });
 
 export type SearchResponse = z.infer<typeof searchResponseSchema>;
