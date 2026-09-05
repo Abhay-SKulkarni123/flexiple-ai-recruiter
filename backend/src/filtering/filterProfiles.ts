@@ -28,8 +28,11 @@ function matchesSkills(
   requiredSkills: string[]
 ): boolean {
   if (requiredSkills.length === 0) return true;
-  const normalized = new Set(profileSkills.map(normalize));
-  return requiredSkills.every((skill) => normalized.has(normalize(skill)));
+  const normalizedProfileSkills = profileSkills.map(normalize);
+  return requiredSkills.every((skill) => {
+    const wanted = normalize(skill);
+    return normalizedProfileSkills.some((profileSkill) => profileSkill.includes(wanted));
+  });
 }
 
 function matchesCompanyTypes(

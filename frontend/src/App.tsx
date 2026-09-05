@@ -180,12 +180,14 @@ export default function App() {
               <LoadingState message="Refining filters and re-scoring candidates..." />
             )}
 
-            <RefinementPanel
-              onRefine={runRefine}
-              changes={phase.changes ?? undefined}
-              isRefining={phase.isRefining}
-              disabled={frozen}
-            />
+            {!frozen && (
+              <RefinementPanel
+                onRefine={runRefine}
+                changes={phase.changes ?? undefined}
+                isRefining={phase.isRefining}
+                disabled={frozen}
+              />
+            )}
           </div>
         )}
       </div>

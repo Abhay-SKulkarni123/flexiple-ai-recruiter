@@ -14,6 +14,15 @@ const scoreColor = (score: number) => {
   return "text-rose-400";
 };
 
+const scoreBg = (score: number) => {
+  if (score >= 80) return "bg-emerald-950/50 border-emerald-800";
+  if (score >= 60) return "bg-amber-950/50 border-amber-800";
+  return "bg-rose-950/50 border-rose-800";
+};
+
+const titleCase = (s: string): string =>
+  s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+
 export function CandidateCard({
   candidate,
   rank,
@@ -33,13 +42,15 @@ export function CandidateCard({
           <h4 className="mt-0.5 text-xl font-bold text-slate-100">{profile.name}</h4>
           <p className="mt-0.5 text-sm text-slate-400">{profile.current_title}</p>
         </div>
-        <div className="flex flex-col items-end gap-1">
+        <div
+          className={`flex flex-col items-center justify-center rounded-xl border px-4 py-2 ${scoreBg(score)}`}
+        >
           <span
-            className={`text-3xl font-black tabular-nums ${scoreColor(score)}`}
+            className={`text-3xl font-black leading-none tabular-nums ${scoreColor(score)}`}
           >
             {score.toFixed(0)}
           </span>
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+          <span className="mt-1 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400">
             Fit Score
           </span>
         </div>
@@ -58,21 +69,26 @@ export function CandidateCard({
         </p>
         <p>
           <span className="rounded bg-slate-800 px-1.5 py-0.5 font-medium text-slate-300">
-            {profile.current_company_type}
+            {titleCase(profile.current_company_type)}
           </span>
         </p>
       </div>
 
       {profile.skills.length > 0 && (
-        <div className="mb-3 flex flex-wrap gap-1.5">
-          {profile.skills.map((skill, i) => (
-            <span
-              key={i}
-              className="rounded-md border border-slate-700 bg-slate-800 px-2 py-0.5 text-xs text-slate-300"
-            >
-              {skill}
-            </span>
-          ))}
+        <div className="mb-4">
+          <p className="mb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+            Skills
+          </p>
+          <ul className="flex flex-wrap gap-1.5">
+            {profile.skills.map((skill, i) => (
+              <li
+                key={i}
+                className="rounded-md border border-slate-700 bg-slate-800/60 px-2.5 py-1 text-xs font-medium text-slate-200"
+              >
+                {skill}
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 
