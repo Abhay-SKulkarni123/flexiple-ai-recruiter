@@ -6,7 +6,7 @@
 
 A focused slice of an AI recruiter workflow: a recruiter types a natural-language hiring brief, the system translates it into structured objective filters and a subjective fit rubric, applies the objective requirements against a fictional talent dataset, scores the survivors with an LLM, and lets the recruiter refine the search through feedback until a final shortlist is frozen.
 
-[**GitHub Repository**](YOUR_GITHUB_REPO_URL) · [**Video Walkthrough**](VIDEO_LINK_HERE)
+[**Video Walkthrough**](https://drive.google.com/file/d/1KwAt-WH3uRxyEifZJNPlNekOHy7kD8QI/view?usp=sharing)
 
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)
@@ -23,15 +23,15 @@ A focused slice of an AI recruiter workflow: a recruiter types a natural-languag
 
 ## 🎥 Video Walkthrough
 
-[**Watch the Loom walkthrough**](VIDEO_LINK_HERE)
+Google Drive Link -> [**Click Here**](https://drive.google.com/file/d/1KwAt-WH3uRxyEifZJNPlNekOHy7kD8QI/view?usp=sharing)
 
-> Replace `VIDEO_LINK_HERE` with the final Loom URL before submission.
+-> Unfortunately Loom has been demanding to buy subscription, so I have added a drive link of screen recording.
 
 ---
 
 ## 📦 What is this?
 
-Recruiters usually begin with intent, not filter forms. Boolean search drops nuance; LLM-only search is hard to audit. This project combines the two:
+Recruiters usually begin with intent, not filter forms. Boolean search drops nuance; LLM only search is hard to audit. This project combines the two:
 
 1. The recruiter's free text is interpreted by a real server-side Gemini call into a structured `ObjectiveFilters` object and a `FitRubric` object.
 2. The objective filters are applied **deterministically** (no LLM) to a supplied 48-profile fictional talent dataset.
@@ -39,7 +39,7 @@ Recruiters usually begin with intent, not filter forms. Boolean search drops nua
 4. The recruiter refines the search with natural-language feedback; Gemini proposes updated filters and rubric; the pipeline re-runs.
 5. When the recruiter is happy, the search is **frozen** as the final shortlist.
 
-The focus is a working end-to-end **sourcing refinement loop**, not a production recruiting platform. The dataset is fictional. There is no real ATS, CRM, auth, or persistence — and that is intentional.
+The focus is a working end to end **sourcing refinement loop**, not a production recruiting platform. The dataset is fictional. There is no real ATS, CRM, auth or persistence and that is intentional.
 
 ---
 
@@ -65,7 +65,7 @@ Each stage is real, not mocked. Every LLM call is a real Gemini call; every filt
 
 ## 🎬 Product Flow
 
-1. Recruiter types a natural-language brief into the search panel.
+1. Recruiter types a natural language brief into the search panel.
 2. UI shows a clear loading state while Gemini interprets, filters, and scores.
 3. The **Objective Filters** panel populates with structured hard requirements (skills, experience, locations, company types, optional score threshold).
 4. The **Subjective Fit Rubric** panel populates with a summary and weighted criteria.
@@ -80,16 +80,13 @@ Each stage is real, not mocked. Every LLM call is a real Gemini call; every filt
 
 | Area | Implementation |
 |---|---|
-| Free-text interpretation | Real server-side Gemini call |
+| Free-text interpretation | Real server side Gemini call |
 | Objective filtering | Deterministic local filter (no LLM) |
 | Subjective scoring | Real server-side Gemini call |
-| Refinement | Real server-side Gemini call |
+| Refinement | Real server side Gemini call |
 | Validation | Zod schemas for every request and response |
 | Dataset | 48 fictional candidate profiles (JSON) |
 | Session state | Frontend, in-memory only |
-| Persistence | Not implemented |
-| Authentication | Not implemented |
-| Production talent database | Not implemented |
 
 Cut features were excluded so the actual evaluation criteria stay centred: end-to-end real LLM interaction, deterministic filtering, subjective scoring, real feedback → real model change → real re-run, visible UI state for every backend action, and failure handling for malformed LLM output and API errors.
 
@@ -97,19 +94,19 @@ Cut features were excluded so the actual evaluation criteria stay centred: end-t
 
 ## ✨ Key Features
 
-**Search interpretation** — Free-text → `ObjectiveFilters` + `FitRubric` via real Gemini call (`gemini-3.5-flash-lite`, `@google/genai`). Conservative rules: broad queries like *"Software engineers"* produce empty filters, not invented ones. Zod validation. Malformed JSON and API errors handled with a 502 error path.
+**Search interpretation** - Free-text → `ObjectiveFilters` + `FitRubric` via real Gemini call (`gemini-3.5-flash-lite`, `@google/genai`). Conservative rules: broad queries like *"Software engineers"* produce empty filters, not invented ones. Zod validation. Malformed JSON and API errors handled with a 502 error path.
 
-**Deterministic filtering** — Inclusive min/max experience, case-insensitive location match, case-insensitive **substring** skill match (so *"RDS"* matches *"AWS RDS"*), company-type match against current **or** past employer. Pure synchronous TypeScript.
+**Deterministic filtering** - Inclusive min/max experience, case-insensitive location match, case-insensitive **substring** skill match (so *"RDS"* matches *"AWS RDS"*), company-type match against current **or** past employer. Pure synchronous TypeScript.
 
-**Scoring & ranking** — All objective-filter survivors are scored 0–100 against the rubric by Gemini. Each score has a short explanation that must reference actual profile fields. Sorted by score; top 5 returned.
+**Scoring & ranking** - All objective-filter survivors are scored 0–100 against the rubric by Gemini. Each score has a short explanation that must reference actual profile fields. Sorted by score; top 5 returned.
 
-**Refinement** — Natural-language feedback routed through `POST /api/refine`. Hard vs soft feedback is distinguished: *"must have" / "required" / "only"* → objective filters; *"prioritize" / "prefer" / "stronger"* → rubric weights and descriptions. The smallest reasonable change is made; existing values are preserved unless the feedback clearly calls for change. A `changes` array with `field`, `before`, `after`, `reason` is rendered in the UI.
+**Refinement** - Natural-language feedback routed through `POST /api/refine`. Hard vs soft feedback is distinguished: *"must have" / "required" / "only"* → objective filters; *"prioritize" / "prefer" / "stronger"* → rubric weights and descriptions. The smallest reasonable change is made; existing values are preserved unless the feedback clearly calls for change. A `changes` array with `field`, `before`, `after`, `reason` is rendered in the UI.
 
-**Score threshold** — Explicit requests like *"only candidates with a score more than 80"* are extracted into `filters.minScore`. "Above N" / "more than N" → strict (N + 1); "at least N" / "N or higher" → inclusive (N). Applied **after** scoring and **before** the top-5 selection.
+**Score threshold** - Explicit requests like *"only candidates with a score more than 80"* are extracted into `filters.minScore`. "Above N" / "more than N" → strict (N + 1); "at least N" / "N or higher" → inclusive (N). Applied **after** scoring and **before** the top-5 selection.
 
-**Freeze** — Marks the shortlist final and prevents further refinement until **New Search** is clicked.
+**Freeze** - Marks the shortlist final and prevents further refinement until **New Search** is clicked.
 
-**Recruiter UX** — Polished dark interface, sticky header with live session status, filters + rubric panels, ranked candidate cards with prominent score, Yes / No feedback, refinement textarea with change history, intentional loading / error / empty / frozen states.
+**Recruiter UX** - Polished dark interface, sticky header with live session status, filters + rubric panels, ranked candidate cards with prominent score, Yes / No feedback, refinement textarea with change history, intentional loading / error / empty / frozen states.
 
 ---
 
@@ -267,11 +264,11 @@ Request body for `/api/refine`: `{ "filters": {...}, "rubric": {...}, "feedback"
 
 All three LLM calls are real server-side Gemini calls (`gemini-3.5-flash-lite` via `@google/genai`):
 
-1. **Interpretation** (`backend/src/llm/searchService.ts`) — free text → filters + rubric. Conservative rules: empty filters when the query is broad.
-2. **Scoring** (`backend/src/llm/scoringService.ts`) — rubric + profiles → scored rankings with grounded explanations. Sorted by score.
-3. **Refinement** (`backend/src/llm/refinementService.ts`) — feedback + current state → updated filters + rubric + a `changes` list (field, before, after, reason).
+1. **Interpretation** (`backend/src/llm/searchService.ts`) - free text → filters + rubric. Conservative rules: empty filters when the query is broad.
+2. **Scoring** (`backend/src/llm/scoringService.ts`) - rubric + profiles → scored rankings with grounded explanations. Sorted by score.
+3. **Refinement** (`backend/src/llm/refinementService.ts`) - feedback + current state → updated filters + rubric + a `changes` list (field, before, after, reason).
 
-Every response is parsed and validated with Zod. Malformed JSON, missing fields, and LLM/API errors are caught and returned as controlled 502 errors — the Express process never crashes on a bad model response. `GEMINI_API_KEY` is read from the server environment only, never from the client.
+Every response is parsed and validated with Zod. Malformed JSON, missing fields, and LLM/API errors are caught and returned as controlled 502 errors, the Express process never crashes on a bad model response. `GEMINI_API_KEY` is read from the server environment only, never from the client.
 
 ---
 
@@ -293,7 +290,7 @@ Every response is parsed and validated with Zod. Malformed JSON, missing fields,
 
 Intentionally **not** built: authentication, persistence across sessions, multiple roles, a production-scale talent database, ATS/CRM integrations, production infrastructure (queues, caching, observability), and team/permissioning features.
 
-These are real engineering for a real product, but they are not what this assessment evaluates. The available time was spent on the core sourcing refinement loop and a polished recruiter UX — the two things the assignment actually grades.
+These are real engineering for a real product, but they are not what this assessment evaluates. The available time was spent on the core sourcing refinement loop and a polished recruiter UX, the two things the assignment actually grades.
 
 ---
 
@@ -301,7 +298,7 @@ These are real engineering for a real product, but they are not what this assess
 
 This repository was created as a submission for the **Flexiple Engineering Hiring assessment**.
 
-It is licensed under a custom **Assessment Evaluation License** (see [`LICENSE`](./LICENSE)). The assessment evaluator is permitted to view, clone, inspect, and execute this repository locally for the purpose of evaluating the submitted engineering work. All other uses — copying, redistribution, modification, publication, deployment, commercial use, or derivative works — require prior written permission from the copyright holder.
+It is licensed under a custom **Assessment Evaluation License** (see [`LICENSE`](./LICENSE)). The assessment evaluator is permitted to view, clone, inspect, and execute this repository locally for the purpose of evaluating the submitted engineering work. All other uses  copying, redistribution, modification, publication, deployment, commercial use, or derivative works, require prior written permission from the copyright holder.
 
 The 48-profile dataset is **fictional** and is supplied as part of the assessment brief. This repository is **not an official Flexiple product or production system**, and is not affiliated with Flexiple beyond the assessment context. The `LICENSE` file is the authoritative source for reuse terms.
 
@@ -309,4 +306,4 @@ The 48-profile dataset is **fictional** and is supplied as part of the assessmen
 
 ## 👤 Author
 
-Abhay S Kulkarni — Flexiple Engineering Hiring assessment submission.
+Abhay S Kulkarni - Flexiple Engineering Hiring assessment submission.
